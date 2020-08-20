@@ -3,8 +3,7 @@ import userEvent from "@testing-library/user-event";
 import { render, screen, within, createDefaultStore } from "../../test-utils";
 import Container from "./Container";
 import { createUser } from "../../store/modelDucks/User";
-
-jest.useFakeTimers();
+import { waitFor } from "@testing-library/react";
 
 describe("Posts component", () => {
   beforeEach(() => {
@@ -27,7 +26,7 @@ describe("Posts component", () => {
     expect(optionJane).toBeDefined();
     userEvent.click(optionJane);
     const newCurrentUserDropdown = screen.getByRole("button", {
-      name: /jane/i
+      name: /jane/i,
     });
     expect(newCurrentUserDropdown).toBeDefined();
   });
@@ -82,7 +81,7 @@ describe("Posts component", () => {
 
     // click to show only Jane's posts
     const showOnlyMineCheckbox = screen.getByRole("checkbox", {
-      name: /show only my posts/i
+      name: /show only my posts/i,
     });
     userEvent.click(showOnlyMineCheckbox);
 
@@ -120,6 +119,16 @@ describe("Posts component", () => {
     expect(within(allPostItems[1]).getByText("Another post")).toBeDefined();
   });
 
+  it("Does not create a post if attempting to submit without typing anything", () => {
+    // try to submit without any input
+    const input = screen.getByRole("textbox");
+    userEvent.type(input, "{enter}");
+
+    // should be no post items
+    const allPostItems = screen.queryAllByTestId("postItem");
+    expect(allPostItems).toHaveLength(0);
+  })
+
   it("Shows a popup snackbar if attempting to create a post with no user selected", () => {
     // click user dropdown and change to 'no user'
     const currentUserDropdown = screen.getByRole("button", { name: /billy/i });
@@ -136,14 +145,20 @@ describe("Posts component", () => {
     expect(allPostItems).toHaveLength(0);
 
     // should be a popup with 'Please select a user to add a post!'
-    expect(
-      screen.getByText(/please select a user before adding a post/i)
-    ).toBeDefined();
+    const alertMessage = screen.getByText(
+      /please select a user before adding a post/i
+    );
+    expect(alertMessage).toBeDefined();
 
-    // should disappear after 3000ms
-    jest.advanceTimersByTime(3000);
-    expect(
-      screen.queryByText(/please select a user before adding a post/i)
-    ).toBeNull();
+    // close the popup
+    const closeButton = within(alertMessage.parentElement).getByRole("button");
+    userEvent.click(closeButton);
+
+    // has a bit of a transition to actually disappear so waitFor it to be gone
+    waitFor(() =>
+      expect(
+        screen.queryByText(/please select a user before adding a post/i)
+      ).toBeNull()
+    );
   });
 });

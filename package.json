@@ -21,12 +21,13 @@
     "redux-orm": "0.16.1"
   },
   "devDependencies": {
+    "jest-environment-jsdom-sixteen": "^1.0.3",
     "typescript": "3.3.3"
   },
   "scripts": {
     "start": "react-scripts start",
     "build": "react-scripts build",
-    "test": "react-scripts test --env=jsdom - --collect-coverage",
+    "test": "react-scripts test --env=jest-environment-jsdom-sixteen - --collect-coverage",
     "eject": "react-scripts eject"
   },
   "jest": {
