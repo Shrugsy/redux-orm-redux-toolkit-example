@@ -43,7 +43,7 @@ export default function PostInput() {
         onClose={() => setSnackbarOpen(false)}
       >
         <Alert onClose={() => setSnackbarOpen(false)} severity="warning">
-          Please select a user!
+          Please select a user before adding a post!
         </Alert>
       </Snackbar>
     </>

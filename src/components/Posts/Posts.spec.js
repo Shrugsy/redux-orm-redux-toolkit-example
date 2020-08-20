@@ -4,6 +4,8 @@ import { render, screen, within, createDefaultStore } from "../../test-utils";
 import Container from "./Container";
 import { createUser } from "../../store/modelDucks/User";
 
+jest.useFakeTimers();
+
 describe("Posts component", () => {
   beforeEach(() => {
     const store = createDefaultStore();
@@ -116,5 +118,32 @@ describe("Posts component", () => {
     ).toBeDefined();
     expect(within(allPostItems[1]).getByText(/jane/i)).toBeDefined();
     expect(within(allPostItems[1]).getByText("Another post")).toBeDefined();
+  });
+
+  it("Shows a popup snackbar if attempting to create a post with no user selected", () => {
+    // click user dropdown and change to 'no user'
+    const currentUserDropdown = screen.getByRole("button", { name: /billy/i });
+    userEvent.click(currentUserDropdown);
+    const optionNoUser = screen.getByRole("option", { name: /no user/i });
+    userEvent.click(optionNoUser);
+
+    // try to type and submit something
+    const input = screen.getByRole("textbox");
+    userEvent.type(input, "This is a post but no user selected{enter}");
+
+    // should be no post items
+    const allPostItems = screen.queryAllByTestId("postItem");
+    expect(allPostItems).toHaveLength(0);
+
+    // should be a popup with 'Please select a user to add a post!'
+    expect(
+      screen.getByText(/please select a user before adding a post/i)
+    ).toBeDefined();
+
+    // should disappear after 3000ms
+    jest.advanceTimersByTime(3000);
+    expect(
+      screen.queryByText(/please select a user before adding a post/i)
+    ).toBeNull();
   });
 });
