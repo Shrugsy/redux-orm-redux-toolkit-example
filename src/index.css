@@ -9,8 +9,16 @@
   font-family: "Muli", sans-serif;
 }
 
+html {
+  height: 100%;
+}
+
+body {
+  min-height: 100%;
+}
+
 .App {
-  margin-top: 2em;
+  padding-top: 2em;
   text-align: center;
 }
 
