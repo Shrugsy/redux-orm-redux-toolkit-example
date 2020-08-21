@@ -1,13 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
+import { errorReducer } from "./slices/error";
+import { currentUserReducer } from "./slices/currentUser";
 import { reducer as ormReducer } from "./orm";
-import { reducer as currentUserReducer } from "./ducks/currentUser";
 import { createPost } from "./modelDucks/Post";
 import { createUser } from "./modelDucks/User";
 
 const store = configureStore({
   reducer: {
     orm: ormReducer,
-    currentUser: currentUserReducer
+    currentUser: currentUserReducer,
+    error: errorReducer
   }
 });
 

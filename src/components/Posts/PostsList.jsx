@@ -1,29 +1,19 @@
 import React from "react";
-import { arrayOf, shape, number, string, func } from "prop-types";
+import { arrayOf, number } from "prop-types";
 import PostItem from "./PostItem";
 
-Posts.propTypes = {
-  posts: arrayOf(
-    shape({
-      id: number.isRequired,
-      content: string.isRequired,
-      name: string.isRequired
-    })
-  ),
-  onDeletePost: func
+PostsList.propTypes = {
+  postIDs: arrayOf(number).isRequired
 };
 
-function Posts({ posts, onDeletePost }) {
+function PostsList({ postIDs }) {
   return (
     <div data-testid={"posts-div"} style={{ width: "90%", margin: "0 auto" }}>
-      {posts
-        ? posts.length > 0 &&
-          posts.map((post) => (
-            <PostItem key={post.id} post={post} onDeletePost={onDeletePost} />
-          ))
-        : null}
+      {postIDs.map((id) => (
+        <PostItem key={id} id={id} />
+      ))}
     </div>
   );
 }
 
-export default Posts;
+export default PostsList;

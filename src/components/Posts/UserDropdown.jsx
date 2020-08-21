@@ -1,8 +1,11 @@
-import React, { useEffect } from "react";
+import React from "react";
 import Select from "@material-ui/core/Select";
 import MenuItem from "@material-ui/core/MenuItem";
 import { useSelector, useDispatch } from "react-redux";
-import { setUser, clearUser } from "../../store/ducks/currentUser";
+import {
+  setCurrentUser,
+  clearCurrentUser
+} from "../../store/slices/currentUser";
 import { usersSelector } from "../../store/modelDucks/UserSelectors";
 
 /**
@@ -13,18 +16,11 @@ export default function UserDropdown() {
   const users = useSelector((state) => usersSelector(state));
   const currentUser = useSelector((state) => state.currentUser);
 
-  useEffect(() => {
-    // when users load, set current user to the first if no user already set
-    if (users.length && currentUser === null) {
-      dispatch(setUser(users[0].id));
-    }
-  }, [users]); //eslint-disable-line
-
   const handleChange = (e) => {
     if (e.target.value === "") {
-      dispatch(clearUser());
+      dispatch(clearCurrentUser());
     } else {
-      dispatch(setUser(e.target.value));
+      dispatch(setCurrentUser(e.target.value));
     }
   };
 

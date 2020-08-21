@@ -3,6 +3,7 @@ import Model, { attr, fk } from "redux-orm";
 
 // =====ACTIONS=====
 export const createPost = createAction("models/posts/create");
+export const editPost = createAction("models/posts/edit");
 export const deletePost = createAction("models/posts/delete");
 
 // =====MODEL=====
@@ -20,15 +21,27 @@ export class Post extends Model {
   static reducer({ type, payload }, Post, session) {
     switch (type) {
       case createPost.type: {
-        if (!payload.content || !payload.user) {
+        const { content, user } = payload;
+        if (!content || !user) {
           console.warn("Unable to create a post with no content or user");
         } else {
-          Post.upsert(payload);
+          Post.create(payload);
+        }
+        break;
+      }
+      case editPost.type: {
+        const { id, content } = payload;
+        if (!content || id === undefined || id === null) {
+          console.warn("Unable to edit a post with no content or id");
+        } else {
+          const post = Post.withId(id);
+          post.content = payload.content;
         }
         break;
       }
       case deletePost.type: {
-        let post = Post.withId(payload);
+        const id = payload;
+        let post = Post.withId(id);
         post.delete();
         break;
       }

@@ -1,9 +1,14 @@
 import React from "react";
 import userEvent from "@testing-library/user-event";
-import { render, screen, within, createDefaultStore } from "../../test-utils";
-import PostContainer from "./PostContainer";
+import {
+  render,
+  screen,
+  within,
+  createDefaultStore,
+  fireEvent
+} from "../../test-utils";
 import { createUser } from "../../store/modelDucks/User";
-import { fireEvent } from "@testing-library/react";
+import PostContainer from "./PostContainer";
 
 describe("Posts component", () => {
   beforeEach(() => {

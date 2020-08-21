@@ -1,14 +1,17 @@
 import React, { useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { Snackbar, TextField } from "@material-ui/core";
-import { Alert } from "@material-ui/lab";
+import { TextField } from "@material-ui/core";
 import { createPost } from "../../store/modelDucks/Post";
+import { setError } from "../../store/slices/error";
 
 export default function PostInput() {
   const [postInput, setPostInput] = useState("");
-  const [snackbarOpen, setSnackbarOpen] = useState(false);
   const dispatch = useDispatch();
   const currentUser = useSelector((state) => state.currentUser);
+
+  const createNoUserError = () => {
+    dispatch(setError("Please select a user!"));
+  };
 
   const handleInputChange = (e) => {
     setPostInput(e.target.value);
@@ -18,7 +21,7 @@ export default function PostInput() {
     e.preventDefault();
     if (postInput) {
       if (currentUser === null) {
-        setSnackbarOpen(true);
+        createNoUserError();
         return;
       }
       dispatch(createPost({ content: postInput, user: currentUser }));
@@ -37,15 +40,6 @@ export default function PostInput() {
           onChange={handleInputChange}
         />
       </form>
-      <Snackbar
-        open={snackbarOpen}
-        autoHideDuration={3000}
-        onClose={() => setSnackbarOpen(false)}
-      >
-        <Alert onClose={() => setSnackbarOpen(false)} severity="warning">
-          Please select a user before adding a post!
-        </Alert>
-      </Snackbar>
     </>
   );
 }
