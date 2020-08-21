@@ -1,16 +1,16 @@
 import React from "react";
 import userEvent from "@testing-library/user-event";
 import { render, screen, within, createDefaultStore } from "../../test-utils";
-import Container from "./Container";
+import PostContainer from "./PostContainer";
 import { createUser } from "../../store/modelDucks/User";
-import { waitFor } from "@testing-library/react";
+import { fireEvent } from "@testing-library/react";
 
 describe("Posts component", () => {
   beforeEach(() => {
     const store = createDefaultStore();
     store.dispatch(createUser({ id: 1, name: "Billy" }));
     store.dispatch(createUser({ id: 2, name: "Jane" }));
-    render(<Container />, { store });
+    render(<PostContainer />, { store });
   });
 
   it("Shows the first user as the current user", () => {
@@ -26,12 +26,12 @@ describe("Posts component", () => {
     expect(optionJane).toBeDefined();
     userEvent.click(optionJane);
     const newCurrentUserDropdown = screen.getByRole("button", {
-      name: /jane/i,
+      name: /jane/i
     });
     expect(newCurrentUserDropdown).toBeDefined();
   });
 
-  it("Handles Create/Delete & filtering posts", () => {
+  it("Handles Create/Edit/Delete & filtering posts", () => {
     // check current is Billy
     const currentUserDropdown = screen.getByRole("button", { name: /billy/i });
     expect(currentUserDropdown).toBeDefined();
@@ -65,11 +65,27 @@ describe("Posts component", () => {
     expect(allPostItems).toHaveLength(2);
     const secondPostItem = allPostItems[1];
     expect(within(secondPostItem).getByText(/jane/i)).toBeDefined();
+    const firstPostContentJane = within(secondPostItem).getByText(
+      "This is my first post"
+    );
+    expect(firstPostContentJane).toBeDefined();
+
+    // edit the first post
+    userEvent.click(firstPostContentJane);
+    // should auto focus in the correct input
+    userEvent.clear(document.activeElement);
+    userEvent.type(document.activeElement, "Some edited content");
+    fireEvent.blur(document.activeElement);
+    // shouldn't see the previous text now
     expect(
-      within(secondPostItem).getByText("This is my first post")
+      within(secondPostItem).queryByText("This is my first post")
+    ).toBeNull();
+    // should see the new text
+    expect(
+      within(secondPostItem).getByText("Some edited content")
     ).toBeDefined();
 
-    // type and submit a second post in the input
+    // type and submit a second post for this user in the input
     userEvent.type(input, "Another post{enter}");
 
     // check the third post item shows expected content
@@ -81,7 +97,7 @@ describe("Posts component", () => {
 
     // click to show only Jane's posts
     const showOnlyMineCheckbox = screen.getByRole("checkbox", {
-      name: /show only my posts/i,
+      name: /show only my posts/i
     });
     userEvent.click(showOnlyMineCheckbox);
 
@@ -90,7 +106,7 @@ describe("Posts component", () => {
     expect(allPostItems).toHaveLength(2);
     expect(within(allPostItems[0]).getByText(/jane/i)).toBeDefined();
     expect(
-      within(allPostItems[0]).getByText("This is my first post")
+      within(allPostItems[0]).getByText("Some edited content")
     ).toBeDefined();
     expect(within(allPostItems[1]).getByText(/jane/i)).toBeDefined();
     expect(within(allPostItems[1]).getByText("Another post")).toBeDefined();
@@ -117,48 +133,5 @@ describe("Posts component", () => {
     ).toBeDefined();
     expect(within(allPostItems[1]).getByText(/jane/i)).toBeDefined();
     expect(within(allPostItems[1]).getByText("Another post")).toBeDefined();
-  });
-
-  it("Does not create a post if attempting to submit without typing anything", () => {
-    // try to submit without any input
-    const input = screen.getByRole("textbox");
-    userEvent.type(input, "{enter}");
-
-    // should be no post items
-    const allPostItems = screen.queryAllByTestId("postItem");
-    expect(allPostItems).toHaveLength(0);
-  })
-
-  it("Shows a popup snackbar if attempting to create a post with no user selected", () => {
-    // click user dropdown and change to 'no user'
-    const currentUserDropdown = screen.getByRole("button", { name: /billy/i });
-    userEvent.click(currentUserDropdown);
-    const optionNoUser = screen.getByRole("option", { name: /no user/i });
-    userEvent.click(optionNoUser);
-
-    // try to type and submit something
-    const input = screen.getByRole("textbox");
-    userEvent.type(input, "This is a post but no user selected{enter}");
-
-    // should be no post items
-    const allPostItems = screen.queryAllByTestId("postItem");
-    expect(allPostItems).toHaveLength(0);
-
-    // should be a popup with 'Please select a user to add a post!'
-    const alertMessage = screen.getByText(
-      /please select a user before adding a post/i
-    );
-    expect(alertMessage).toBeDefined();
-
-    // close the popup
-    const closeButton = within(alertMessage.parentElement).getByRole("button");
-    userEvent.click(closeButton);
-
-    // has a bit of a transition to actually disappear so waitFor it to be gone
-    waitFor(() =>
-      expect(
-        screen.queryByText(/please select a user before adding a post/i)
-      ).toBeNull()
-    );
   });
 });
