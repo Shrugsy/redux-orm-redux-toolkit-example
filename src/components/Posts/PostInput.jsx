@@ -12,6 +12,9 @@ export default function PostInput() {
   const createNoUserError = () => {
     dispatch(setError("Please select a user!"));
   };
+  const createNoContentError = () => {
+    dispatch(setError("Cannot create a post with no content!"));
+  };
 
   const handleInputChange = (e) => {
     setPostInput(e.target.value);
@@ -26,6 +29,8 @@ export default function PostInput() {
       }
       dispatch(createPost({ content: postInput, user: currentUser }));
       setPostInput("");
+    } else {
+      createNoContentError();
     }
   };
   return (

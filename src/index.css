@@ -34,6 +34,7 @@ body {
   background: lightgray;
   border-radius: 35%;
   width: 60px;
+  cursor: pointer;
 }
 
 .theme-toggle.dark {
