@@ -5,13 +5,15 @@ import { Provider } from "react-redux";
 import { configureStore } from "@reduxjs/toolkit";
 
 import { reducer as ormReducer } from "./store/orm";
-import { currentUserSlice } from "./store/slice/currentUser";
+import { currentUserReducer } from "./store/slices/currentUser";
+import { errorReducer } from "./store/slices/error";
 
 export const createDefaultStore = (initialState) =>
   configureStore({
     reducer: {
       orm: ormReducer,
-      currentUser: currentUserSlice.Reducer
+      currentUser: currentUserReducer,
+      error: errorReducer
     },
     preloadedState: initialState
   });
